@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STP to Text Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            margin: 0 auto;
+            max-width: 400px;
+        }
+        .upload-form {
+            margin-bottom: 20px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Upload and Convert STP to TXT</h1>
+
+        <!-- Upload Form -->
+        <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+            <input type="file" name="file" id="fileInput" accept=".stp" required>
+            <button type="submit" class="btn">Upload</button>
+        </form>
+
+        <!-- Download Button (Initially hidden) -->
+        <button id="downloadBtn" class="btn hidden" onclick="downloadFile()">Download Converted File</button>
+
+        <!-- Message after file upload -->
+        <p id="message"></p>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append("file", document.getElementById("fileInput").files[0]);
+
+            document.getElementById("message").textContent = "Uploading and converting... Please wait.";
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                if (data.success) {
+                    document.getElementById('message').textContent = 'File successfully converted!';
+                    document.getElementById('downloadBtn').classList.remove('hidden');
+                    // Set the download link dynamically
+                    document.getElementById('downloadBtn').setAttribute('data-file', data.filename);
+                } else {
+                    document.getElementById('message').textContent = data.error || 'An error occurred during the upload.';
+                }
+            })
+            .catch(error => {
+                document.getElementById('message').textContent = 'An error occurred during the upload.';
+            });
+        });
+
+        function downloadFile() {
+            const filename = document.getElementById('downloadBtn').getAttribute('data-file');
+            window.location.href = `/download/${filename}`;
+        }
+    </script>
+</body>
+</html>
+
