@@ -27,9 +27,6 @@
         .btn:hover {
             background-color: #45a049;
         }
-        .hidden {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -40,16 +37,11 @@
         <!-- Upload Form -->
         <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
             <input type="file" name="file" id="fileInput" accept=".stp" required>
-            <button type="submit" class="btn">Upload</button>
+            <button type="submit" class="btn">Upload and download</button>
         </form>
-
-        <!-- Download Button (Initially hidden) -->
-        <button id="downloadBtn" class="btn hidden" onclick="downloadFile()">Download Converted File</button>
-
         <!-- Message after file upload -->
         <p id="message"></p>
     </div>
-
     <script>
         document.getElementById('uploadForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -65,12 +57,14 @@
             })
             .then(response => response.json())
             .then(data => {
-
                 if (data.success) {
                     document.getElementById('message').textContent = 'File successfully converted!';
-                    document.getElementById('downloadBtn').classList.remove('hidden');
-                    // Set the download link dynamically
-                    document.getElementById('downloadBtn').setAttribute('data-file', data.filename);
+
+                    // Trigger file download
+                    const link = document.createElement('a');
+                    link.href = `/download/${data.filename}`;
+                    link.download = data.filename; // Optional: Suggest filename for the download
+                    link.click();
                 } else {
                     document.getElementById('message').textContent = data.error || 'An error occurred during the upload.';
                 }
@@ -79,11 +73,6 @@
                 document.getElementById('message').textContent = 'An error occurred during the upload.';
             });
         });
-
-        function downloadFile() {
-            const filename = document.getElementById('downloadBtn').getAttribute('data-file');
-            window.location.href = `/download/${filename}`;
-        }
     </script>
 </body>
 </html>
